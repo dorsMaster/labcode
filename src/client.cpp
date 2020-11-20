@@ -2,22 +2,50 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <iostream>
 #include <chrono>
+#include <iomanip>
 #include "../headers/tands.h"
 
 using namespace std;
 
+char        separator       = ' ';
+const int   timeWidth       =  12;
+const int   statusWidth     =   6;
+const int   numWidth        =   4;
+const int   singleWidth     =   1;
+
+template<typename T> void printElement(T t, const int& width) {
+    cout << left << setw(width) << setfill(separator) << t;
+}
+
+template<typename T> void prinNumElement(T t, const int& width) {
+    cout << right << setw(width) << setfill(separator) << t;
+}
+
+template<typename T> void printTimeElement(T t, const int& width) {
+
+    cout << fixed <<setprecision(3) << left << setw(width) << setfill(separator)
+    << t
+    << ":";
+}
+
+void printRow(string status, char job, int id){
+    const auto startTask = std::chrono::system_clock::now();
+    printTimeElement(std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000, timeWidth);
+    printElement(status, statusWidth);
+    printElement("(", singleWidth);
+    printElement(job, singleWidth);
+    prinNumElement(id, numWidth);
+    printElement(")", singleWidth);
+
+    cout << "\n";
+}
+
 int main(int argc, char *argv[]) {
-
-    char hostname[1024];
-    gethostname(hostname, 1024);
-    printf("Host %s \n", hostname);
-
     int numTransactions = 0;
 
     int portNum = strtol(argv[1], NULL, 10);
@@ -26,6 +54,14 @@ int main(int argc, char *argv[]) {
         printf("Please enter a valid port number.");
         return 0;
     }
+
+    cout << "Using port " << portNum << endl;
+
+    cout << "Using server address " << ipAdd << endl;
+
+    char hostname[1024];
+    gethostname(hostname, 1024);
+    printf("Host %s \n", hostname);
 
     char *msg;
 
@@ -36,6 +72,7 @@ int main(int argc, char *argv[]) {
         if (val[0] == 'S') {
             string tmp = val.substr(1, val.length() - 1);
             Sleep(atoi(tmp.c_str()));
+            cout << "Sleep " << tmp << " units" << endl;
         }
         else
             {        //Send some data
@@ -55,19 +92,22 @@ int main(int argc, char *argv[]) {
             if (connect(fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) // bind socket to the server address
                 return 1;
 
-                const auto startTask = std::chrono::system_clock::now();
-                cout << std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000
-                     << " :   Send" << "   (" << msg << "  )   from" << endl;
+            string msgtmp = string(msg).substr(1, string(msg).length() - 1);
+            printRow("Send", msg[0], atoi(msgtmp.c_str()));
             if (send(fd, msg, strlen(msg), 0) < 0) {
                 puts("Send failed");
                 return 1;
             }
-            write(fd, msg, sizeof(msg));
 
-            int sent = 0;
-            while ((sizeof(msg) - sent) > 0)
-                sent += write(fd, msg + sent, sizeof(msg) - sent);
-
+            //Receive a reply from the server
+            char *message, server_reply[1000];
+            memset(server_reply, 0, 1000);
+            if (recv(fd, server_reply, 1000, 0) < 0) {
+                puts("recv failed");
+                break;
+            }
+            string serverreplytmp = string(server_reply).substr(1, string(server_reply).length() - 1);
+            printRow("Recv", server_reply[0], atoi(serverreplytmp.c_str()));
             numTransactions++;
             close(fd); // close connection
         }
@@ -75,3 +115,4 @@ int main(int argc, char *argv[]) {
     cout << "Sent " << numTransactions << " transactions" << endl;
     return 0;
 }
+

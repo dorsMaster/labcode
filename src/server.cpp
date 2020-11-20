@@ -8,22 +8,86 @@
 #include <iostream>
 #include <fcntl.h>
 #include <sys/time.h>
-#include <thread>
+#include <iomanip>
 #include "../headers/tands.h"
 
 using namespace std;
 
+int     i = 1;
+
+char        separator       = ' ';
+const int   timeWidth       =  12;
+const int   statusWidth     =   6;
+const int   numWidth        =   3;
+const int   singleWidth     =   1;
+
+template<typename T> void printElement(T t, const int& width) {
+    cout << left << setw(width) << setfill(separator) << t;
+}
+
+template<typename T> void printNumElement(T t, const int& width) {
+    cout << right << setw(width) << setfill(separator) << t;
+}
+
+template<typename T> void printTimeElement(T t, const int& width) {
+
+    cout << fixed <<setprecision(3) << left << setw(width) << setfill(separator)
+         << t
+         << ": #";
+}
+
+void printRow(int i, char job, string id){
+    const auto startTask = std::chrono::system_clock::now();
+    printTimeElement(std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000, timeWidth);
+    printElement(i, numWidth);
+    printElement("(", singleWidth);
+    printElement(job, singleWidth);
+    printNumElement(id, numWidth);
+    printElement(")", singleWidth);
+    printElement(" from", statusWidth);
+    cout << "\n";
+}
+
 int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; }
 
-void setInterval(auto function,int interval) {
-    thread th([&]() {
-        while(true) {
-            Sleep(interval);
-            function();
+time_t taskForClient(time_t start, time_t endwait, time_t seconds, int count, int client_fd, char buffer[]){
+    start = time(NULL);
+    count = read(client_fd, buffer, sizeof(buffer));
+    if(count > 0) {
+        buffer[count] = '\0';
+        if (buffer[0]=='T') {
+            string tmp = string(buffer).substr(1, string(buffer).length() - 1);
+            printRow(i, buffer[0], tmp.c_str());
+            Trans(atoi(tmp.c_str()));
+            const auto endTask = std::chrono::system_clock::now();
+            printRow(i, 'D', "one");
+            i++;
         }
-    });
-    th.detach();
+    }
+    endwait = start + seconds;
+    return endwait;
 }
+
+void tryForConnection(time_t start, time_t endwait, time_t seconds, int fd){
+    start = time(NULL);
+    struct sockaddr_in client_address; // client address
+    int len = sizeof(client_address);
+    int client_fd = accept(fd, (struct sockaddr*) &client_address, reinterpret_cast<socklen_t *>(&len));  // accept connection
+
+//    if (client_fd < 0) // bad connection
+
+    char buffer[1024];
+    int count = 0;
+
+    do {
+        endwait = taskForClient(start, endwait, seconds, count, client_fd, buffer);
+        string client_response = "D" + to_string(i);
+        write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
+    } while(count > 0);
+
+    close(client_fd);
+}
+
 
 int main(int argc, char *argv[]) {
     int portNum = strtol(argv[1], NULL, 10);
@@ -53,47 +117,13 @@ int main(int argc, char *argv[]) {
     if (listen(fd, 1) < 0) // wait for clients, only 1 is allowed.
         return 1;
 
-    int i = 0;
     bool time_out = false;
     time_t endwait;
     time_t start = time(NULL);
-    cout << start << endl;
     time_t seconds = 30;
     endwait = start + seconds;
     while(1 && (start < endwait)) {
-        start = time(NULL);
-        struct sockaddr_in client_address; // client address
-        int len = sizeof(client_address);
-        int client_fd = accept(fd, (struct sockaddr*) &client_address, reinterpret_cast<socklen_t *>(&len));  // accept connection
-
-        if (client_fd < 0) // bad connection
-            continue; // discard
-
-        char buffer[1024];
-        int count = 0;
-
-        do {
-            start = time(NULL);
-            count = read(client_fd, buffer, sizeof(buffer));
-            if(count > 0) {
-                buffer[count] = '\0';
-                if (buffer[0]=='T') {
-                    const auto startTask = std::chrono::system_clock::now();
-                    cout << std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000
-                         << " : #" << i << "   (" << buffer << "  )   from" << endl;
-                    string tmp = string(buffer).substr(1, string(buffer).length() - 1);
-                    Trans(atoi(tmp.c_str()));
-                    const auto endTask = std::chrono::system_clock::now();
-                    cout << std::chrono::duration_cast<std::chrono::milliseconds>(endTask.time_since_epoch()).count()/1000
-                         << " : #" << i << "   (Done)   from" << endl;
-                    i++;
-                }
-            }
-            endwait = start + seconds;
-        } while(count > 0);
-
-        close(client_fd);
-
+        tryForConnection(start, endwait, seconds, fd);
     }
     cout<<endwait<<endl;
     close(fd);
