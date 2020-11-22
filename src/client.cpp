@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     cout << "Using server address " << ipAdd << endl;
 
     string hostname_pid = getHostName();
-    
+
     string val;
     while (getline(cin, val)) {
         string msgtopass = hostname_pid + "," + val;
