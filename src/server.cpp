@@ -9,12 +9,14 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <iomanip>
+#include <unordered_map>
 #include "../headers/tands.h"
 
 using namespace std;
 
-int     i = 1;
-
+time_t      endwait, start;
+int         i               =   1;
+time_t      seconds         =  30;
 char        separator       = ' ';
 const int   timeWidth       =  12;
 const int   statusWidth     =   6;
@@ -50,7 +52,7 @@ void printRow(int i, char job, string id){
 
 int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; }
 
-time_t taskForClient(time_t start, time_t endwait, time_t seconds, int count, int client_fd, char buffer[]){
+void taskForClient(int count, int client_fd, char buffer[]){
     start = time(NULL);
     count = read(client_fd, buffer, sizeof(buffer));
     if(count > 0) {
@@ -63,12 +65,11 @@ time_t taskForClient(time_t start, time_t endwait, time_t seconds, int count, in
             printRow(i, 'D', "one");
             i++;
         }
+        endwait = start + seconds;
     }
-    endwait = start + seconds;
-    return endwait;
 }
 
-void tryForConnection(time_t start, time_t endwait, time_t seconds, int fd){
+void tryForConnection(int fd){
     start = time(NULL);
     struct sockaddr_in client_address; // client address
     int len = sizeof(client_address);
@@ -80,7 +81,7 @@ void tryForConnection(time_t start, time_t endwait, time_t seconds, int fd){
     int count = 0;
 
     do {
-        endwait = taskForClient(start, endwait, seconds, count, client_fd, buffer);
+        taskForClient(count, client_fd, buffer);
         string client_response = "D" + to_string(i);
         write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
     } while(count > 0);
@@ -117,15 +118,12 @@ int main(int argc, char *argv[]) {
     if (listen(fd, 1) < 0) // wait for clients, only 1 is allowed.
         return 1;
 
-    bool time_out = false;
-    time_t endwait;
-    time_t start = time(NULL);
-    time_t seconds = 30;
+    start = time(NULL);
     endwait = start + seconds;
-    while(1 && (start < endwait)) {
-        tryForConnection(start, endwait, seconds, fd);
+    while(start < endwait) {
+        tryForConnection(fd);
     }
-    cout<<endwait<<endl;
+
     close(fd);
     return 0;
 } 
