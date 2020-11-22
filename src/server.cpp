@@ -34,7 +34,7 @@ template<typename T> void printElement(T t, const int& width) {
 }
 
 template<typename T> void printSummaryElement(T t, const int& width) {
-    cout << fixed << setprecision(1) << left << setw(width) << setfill(separator) << t << "transactions/sec" ;
+    cout << fixed << setprecision(1) << left << setw(width) << setfill(separator) << t << "transactions/sec  " ;
 }
 
 template<typename T> void printNumElement(T t, const int& width) {
