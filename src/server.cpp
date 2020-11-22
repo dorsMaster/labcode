@@ -122,7 +122,7 @@ void tryForConnection(int fd){
 }
 
 void printSummary(){
-    cout << "Summary" << endl;
+    cout << "SUMMARY" << endl;
     int totTrans = 0;
     for (auto& host: summary) {
         printNumElement(host.second,indexWidth);
