@@ -50,6 +50,7 @@ string getHostName(){
     gethostname(hostname, 1024);
     hostname_pid = (string)hostname + "." + to_string(getpid());
     cout << "Host " << hostname_pid << endl;
+    return hostname_pid;
 }
 
 int main(int argc, char *argv[]) {

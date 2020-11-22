@@ -34,7 +34,7 @@ template<typename T> void printElement(T t, const int& width) {
 }
 
 template<typename T> void printSummaryElement(T t, const int& width) {
-    cout << fixed << setprecision(1) << left << setw(width) << setfill(separator) << t;
+    cout << fixed << setprecision(1) << left << setw(width) << setfill(separator) << t << "transactions/sec" ;
 }
 
 template<typename T> void printNumElement(T t, const int& width) {
@@ -43,8 +43,7 @@ template<typename T> void printNumElement(T t, const int& width) {
 
 template<typename T> void printTimeElement(T t, const int& width) {
     cout << fixed <<setprecision(2) << left << setw(width) << setfill(separator)
-         << t
-         << ": #  ";
+         << t;
 }
 
 void updateSummary(string hostname){
@@ -63,6 +62,7 @@ void printRow(int i, char job, string id, string hostname){
     }
     endOfProgram = tm;
     printTimeElement(tm, timeWidth);
+    cout << ": #  ";
     printElement(i, indexWidth);
     printElement("(", singleWidth);
     printElement(job, singleWidth);
@@ -130,7 +130,9 @@ void printSummary(){
         totTrans+=host.second;
     }
     printSummaryElement(totTrans/(endOfProgram-startOfProgram),tpsWidth);
-    cout << "transactions/sec" << endl;
+    cout << "(" << totTrans << "/";
+    printTimeElement(endOfProgram-startOfProgram,singleWidth);
+    cout << ")" << endl;
 }
 
 
