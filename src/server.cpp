@@ -14,19 +14,27 @@
 
 using namespace std;
 
-time_t      endwait, start, startOfProgram, endOfProgram;
-unordered_map<string,int> summary;
-int         i               =   1;
-time_t      seconds         =  30;
-char        separator       = ' ';
-const int   timeWidth       =  12;
-const int   statusWidth     =   6;
-const int   indexWidth      =   4;
-const int   numWidth        =   3;
-const int   singleWidth     =   1;
+time_t      endwait, start;
+double      startOfProgram, endOfProgram;
+bool        startOfProgramFlag  = true;
+unordered_map<string,int>      summary;
+
+int         i                   =   1;
+time_t      seconds             =  30;
+char        separator           = ' ';
+const int   timeWidth           =  12;
+const int   statusWidth         =   6;
+const int   tpsWidth            =   5;
+const int   indexWidth          =   4;
+const int   numWidth            =   3;
+const int   singleWidth         =   1;
 
 template<typename T> void printElement(T t, const int& width) {
     cout << left << setw(width) << setfill(separator) << t;
+}
+
+template<typename T> void printSummaryElement(T t, const int& width) {
+    cout << fixed << setprecision(1) << left << setw(width) << setfill(separator) << t;
 }
 
 template<typename T> void printNumElement(T t, const int& width) {
@@ -49,6 +57,11 @@ void updateSummary(string hostname){
 void printRow(int i, char job, string id, string hostname){
     const auto startTask = std::chrono::system_clock::now();
     double tm = std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000.0;
+    if (startOfProgramFlag){
+        startOfProgram = tm;
+        startOfProgramFlag = false;
+    }
+    endOfProgram = tm;
     printTimeElement(tm, timeWidth);
     printElement(i, indexWidth);
     printElement("(", singleWidth);
@@ -112,12 +125,12 @@ void printSummary(){
     cout << "Summary" << endl;
     int totTrans = 0;
     for (auto& host: summary) {
-        cout << "    " << host.second << " transactions from " << host.first << endl;
+        printNumElement(host.second,indexWidth);
+        cout << " transactions from " << host.first << endl;
         totTrans+=host.second;
     }
-    cout << totTrans << endl;
-    //TODO make it so it subtracts the time of first trans and last trans
-
+    printSummaryElement(totTrans/(endOfProgram-startOfProgram),tpsWidth);
+    cout << "transactions/sec" << endl;
 }
 
 
