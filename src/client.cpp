@@ -60,14 +60,16 @@ int main(int argc, char *argv[]) {
     cout << "Using server address " << ipAdd << endl;
 
     char hostname[1024];
+    string hostname_pid;
     gethostname(hostname, 1024);
-    printf("Host %s \n", hostname);
+    hostname_pid = (string)hostname + "." + to_string(getpid());
+    cout << "Host " << hostname_pid << endl;
 
-    char *msg;
 
     string val;
     while (getline(cin, val)) {
-        msg = const_cast<char *>(val.c_str());
+        string msgtopass = hostname_pid + "," + val;
+        const char *msg = msgtopass.c_str();
 
         if (val[0] == 'S') {
             string tmp = val.substr(1, val.length() - 1);
@@ -92,15 +94,15 @@ int main(int argc, char *argv[]) {
             if (connect(fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) // bind socket to the server address
                 return 1;
 
-            string msgtmp = string(msg).substr(1, string(msg).length() - 1);
-            printRow("Send", msg[0], atoi(msgtmp.c_str()));
             if (send(fd, msg, strlen(msg), 0) < 0) {
                 puts("Send failed");
                 return 1;
             }
 
-            //Receive a reply from the server
-            char *message, server_reply[1000];
+            string val_int = val.substr(1, string(msg).length() - 1);
+            printRow("Send", val[0], atoi(val_int.c_str()));
+
+            char server_reply[1000];
             memset(server_reply, 0, 1000);
             if (recv(fd, server_reply, 1000, 0) < 0) {
                 puts("recv failed");

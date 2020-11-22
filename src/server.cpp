@@ -14,7 +14,8 @@
 
 using namespace std;
 
-time_t      endwait, start;
+time_t      endwait, start, startOfProgram, endOfProgram;
+unordered_map<string,int> summary;
 int         i               =   1;
 time_t      seconds         =  30;
 char        separator       = ' ';
@@ -38,7 +39,14 @@ template<typename T> void printTimeElement(T t, const int& width) {
          << ": #";
 }
 
-void printRow(int i, char job, string id){
+void updateSummary(string hostname){
+    if (summary.find(hostname) == summary.end())
+        summary[hostname]=1;
+    else
+        summary[hostname]++;
+}
+
+void printRow(int i, char job, string id, string hostname){
     const auto startTask = std::chrono::system_clock::now();
     printTimeElement(std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000, timeWidth);
     printElement(i, numWidth);
@@ -46,24 +54,35 @@ void printRow(int i, char job, string id){
     printElement(job, singleWidth);
     printNumElement(id, numWidth);
     printElement(")", singleWidth);
-    printElement(" from", statusWidth);
-    cout << "\n";
+    printElement(" from ", statusWidth);
+    cout << hostname << "\n";
 }
 
 int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; }
 
-void taskForClient(int count, int client_fd, char buffer[]){
+void taskForClient(int count, int client_fd){
+    char buffer[1024];
     start = time(NULL);
     count = read(client_fd, buffer, sizeof(buffer));
+
     if(count > 0) {
         buffer[count] = '\0';
-        if (buffer[0]=='T') {
-            string tmp = string(buffer).substr(1, string(buffer).length() - 1);
-            printRow(i, buffer[0], tmp.c_str());
+        string hostname;
+        int indexOColon, j = 0;
+        while(buffer[j]!=','){
+            hostname+=buffer[j];
+            j++;
+        }
+        indexOColon = j;
+
+        if (buffer[indexOColon+1]=='T') {
+            string tmp = string(buffer).substr(indexOColon+2, string(buffer).length() - 1);
+            printRow(i, buffer[indexOColon+1], tmp.c_str(), hostname);
             Trans(atoi(tmp.c_str()));
             const auto endTask = std::chrono::system_clock::now();
-            printRow(i, 'D', "one");
+            printRow(i, 'D', "one", hostname);
             i++;
+            updateSummary(hostname);
         }
         endwait = start + seconds;
     }
@@ -77,16 +96,27 @@ void tryForConnection(int fd){
 
 //    if (client_fd < 0) // bad connection
 
-    char buffer[1024];
     int count = 0;
 
     do {
-        taskForClient(count, client_fd, buffer);
+        taskForClient(count, client_fd);
         string client_response = "D" + to_string(i);
         write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
     } while(count > 0);
 
     close(client_fd);
+}
+
+void printSummary(){
+    cout << "Summary" << endl;
+    int totTrans = 0;
+    for (auto& host: summary) {
+        cout << "    " << host.second << " transactions from " << host.first << endl;
+        totTrans+=host.second;
+    }
+    cout << totTrans << endl;
+    //TODO make it so it subtracts the time of first trans and last trans
+
 }
 
 
@@ -114,7 +144,7 @@ int main(int argc, char *argv[]) {
     if (bind(fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) // bind socket to the server address
         return 1;
 
-    printf("Listening on port %d for clients.\n", portNum);
+    printf("Using port %d \n", portNum);
     if (listen(fd, 1) < 0) // wait for clients, only 1 is allowed.
         return 1;
 
@@ -123,6 +153,7 @@ int main(int argc, char *argv[]) {
     while(start < endwait) {
         tryForConnection(fd);
     }
+    printSummary();
 
     close(fd);
     return 0;
