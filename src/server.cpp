@@ -34,8 +34,7 @@ template<typename T> void printNumElement(T t, const int& width) {
 }
 
 template<typename T> void printTimeElement(T t, const int& width) {
-
-    cout << fixed <<setprecision(3) << left << setw(width) << setfill(separator)
+    cout << fixed <<setprecision(2) << left << setw(width) << setfill(separator)
          << t
          << ": #  ";
 }
@@ -49,7 +48,8 @@ void updateSummary(string hostname){
 
 void printRow(int i, char job, string id, string hostname){
     const auto startTask = std::chrono::system_clock::now();
-    printTimeElement(std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000, timeWidth);
+    double tm = std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000.0;
+    printTimeElement(tm, timeWidth);
     printElement(i, indexWidth);
     printElement("(", singleWidth);
     printElement(job, singleWidth);

@@ -10,6 +10,8 @@
 #include <iomanip>
 #include "../headers/tands.h"
 
+//TODO make more methods!!
+
 using namespace std;
 
 char        separator       = ' ';
@@ -27,21 +29,19 @@ template<typename T> void prinNumElement(T t, const int& width) {
 }
 
 template<typename T> void printTimeElement(T t, const int& width) {
-
-    cout << fixed <<setprecision(3) << left << setw(width) << setfill(separator)
+    cout << fixed <<setprecision(2) << left << setw(width) << setfill(separator)
     << t
-    << ":";
+    << ": ";
 }
 
 void printRow(string status, char job, int id){
     const auto startTask = std::chrono::system_clock::now();
-    printTimeElement(std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000, timeWidth);
-    printElement(status, statusWidth);
+    double tm = std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000.0;
+    printTimeElement(tm, timeWidth);    printElement(status, statusWidth);
     printElement("(", singleWidth);
     printElement(job, singleWidth);
     prinNumElement(id, numWidth);
     printElement(")", singleWidth);
-
     cout << "\n";
 }
 
