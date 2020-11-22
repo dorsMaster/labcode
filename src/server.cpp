@@ -21,6 +21,7 @@ time_t      seconds         =  30;
 char        separator       = ' ';
 const int   timeWidth       =  12;
 const int   statusWidth     =   6;
+const int   indexWidth      =   4;
 const int   numWidth        =   3;
 const int   singleWidth     =   1;
 
@@ -36,7 +37,7 @@ template<typename T> void printTimeElement(T t, const int& width) {
 
     cout << fixed <<setprecision(3) << left << setw(width) << setfill(separator)
          << t
-         << ": #";
+         << ": #  ";
 }
 
 void updateSummary(string hostname){
@@ -49,7 +50,7 @@ void updateSummary(string hostname){
 void printRow(int i, char job, string id, string hostname){
     const auto startTask = std::chrono::system_clock::now();
     printTimeElement(std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000, timeWidth);
-    printElement(i, numWidth);
+    printElement(i, indexWidth);
     printElement("(", singleWidth);
     printElement(job, singleWidth);
     printNumElement(id, numWidth);
