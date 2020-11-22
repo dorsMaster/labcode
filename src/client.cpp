@@ -10,7 +10,6 @@
 #include <iomanip>
 #include "../headers/tands.h"
 
-//TODO make more methods!!
 
 using namespace std;
 
@@ -45,6 +44,14 @@ void printRow(string status, char job, int id){
     cout << "\n";
 }
 
+string getHostName(){
+    char hostname[1024];
+    string hostname_pid;
+    gethostname(hostname, 1024);
+    hostname_pid = (string)hostname + "." + to_string(getpid());
+    cout << "Host " << hostname_pid << endl;
+}
+
 int main(int argc, char *argv[]) {
     int numTransactions = 0;
 
@@ -56,16 +63,10 @@ int main(int argc, char *argv[]) {
     }
 
     cout << "Using port " << portNum << endl;
-
     cout << "Using server address " << ipAdd << endl;
 
-    char hostname[1024];
-    string hostname_pid;
-    gethostname(hostname, 1024);
-    hostname_pid = (string)hostname + "." + to_string(getpid());
-    cout << "Host " << hostname_pid << endl;
-
-
+    string hostname_pid = getHostName();
+    
     string val;
     while (getline(cin, val)) {
         string msgtopass = hostname_pid + "," + val;
