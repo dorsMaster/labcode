@@ -4,24 +4,48 @@ time_t      endwait, start;
 double      startOfProgram, endOfProgram;
 bool        startOfProgramFlag  = true;
 unordered_map<string,int>      summary;
-
+/**
+ * Uses a template to assign width to table for when it prints
+ * @param t
+ * @param width
+ */
 template<typename T> void printElement(T t, const int& width) {
     cout << left << setw(width) << setfill(separator) << t;
 }
 
+/**
+ * Uses a template to assign width to table for when it prints specific for the summary table
+ * @param t
+ * @param width
+ */
 template<typename T> void printSummaryElement(T t, const int& width) {
     cout << fixed << setprecision(1) << left << setw(width) << setfill(separator) << t << "transactions/sec  " ;
 }
 
+/**
+ * Uses a template to assign width to table for when it prints specific to numbers
+ * @param t
+ * @param width
+ */
 template<typename T> void printNumElement(T t, const int& width) {
     cout << right << setw(width) << setfill(separator) << t;
 }
 
+/**
+ * Uses a template to assign width to table for when it prints specific to time element.
+ * it also set the precision of the number to be 2 decimal places
+ * @param t
+ * @param width
+ */
 template<typename T> void printTimeElement(T t, const int& width) {
     cout << fixed <<setprecision(2) << left << setw(width) << setfill(separator)
          << t;
 }
 
+/**
+ * Updates a hash map of the servers and the number of transactions that it has done for them
+ * @param hostname
+ * */
 void updateSummary(string hostname){
     if (summary.find(hostname) == summary.end())
         summary[hostname]=1;
@@ -29,6 +53,13 @@ void updateSummary(string hostname){
         summary[hostname]++;
 }
 
+/**
+ * Uses a template to assign width to table for when it prints and then prints one row
+ * @param i
+ * @param job
+ * @param id
+ * @param hostname
+ */
 void printRow(int i, char job, string id, string hostname){
     const auto startTask = std::chrono::system_clock::now();
     double tm = std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000.0;
@@ -48,8 +79,19 @@ void printRow(int i, char job, string id, string hostname){
     cout << hostname << "\n";
 }
 
+/**
+ * To handle error and print error statements
+ * @param n
+ * @param err
+ */
 int guard(int n, string err) { if (n == -1) { perror(err.c_str()); exit(1); } return n; }
 
+/**
+ * This is where the client gets assigned the task that is required to do
+ * it calls trans and also prints done when the task has been executed
+ * @param count
+ * @param client_fd
+ */
 int taskForClient(int count, int client_fd){
     char buffer[1024];
     start = time(NULL);
@@ -79,6 +121,10 @@ int taskForClient(int count, int client_fd){
     return count;
 }
 
+/**
+ * Tries to establish a connection with the client
+ * @param fd
+ * */
 void tryForConnection(int fd){
     start = time(NULL);
     struct sockaddr_in client_address; // client address
@@ -100,6 +146,9 @@ void tryForConnection(int fd){
     close(client_fd);
 }
 
+/**
+ * Prints the summary of all the transactions from different clients by parsing through the hash
+ */
 void printSummary(){
     cout << "SUMMARY" << endl;
     int totTrans = 0;
@@ -114,7 +163,12 @@ void printSummary(){
     cout << ")" << endl;
 }
 
-
+/**
+ * Reads the port number, creates a socket, listens, and times out after 30 seconds of no connection received
+ * prints the summary
+ * @param argc
+ * @param argv
+ */
 int main(int argc, char *argv[]) {
     int portNum = strtol(argv[1], NULL, 10);
 
