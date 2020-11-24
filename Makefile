@@ -2,18 +2,18 @@ CC := g++
 CFLAGS := -O3 -std=c++14
 
 .PHONY: all clean man
-all: obj server client man
+all: obj tands server client man
 
 obj:
 	@mkdir obj
 
-server: obj/tands.o src/server.cpp
-	$(CC) $(CFLAGS) obj/tands.o src/server.cpp -o server
+server: src/server.cpp headers/includes.h obj/tands.o
+	$(CC) $(CFLAGS) src/server.cpp headers/includes.h obj/tands.o -o server
 
-client: obj/tands.o src/client.cpp
-	$(CC) $(CFLAGS) obj/tands.o src/client.cpp -o client
+client: src/client.cpp headers/includes.h obj/tands.o
+	$(CC) $(CFLAGS) obj/tands.o headers/includes.h src/client.cpp -o client
 
-obj/tands.o: src/tands.cpp headers/tands.h
+tands: src/tands.cpp headers/tands.h
 	$(CC) $(CFLAGS) src/tands.cpp -c -o obj/tands.o
 
 man: man/client man/server

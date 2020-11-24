@@ -1,7 +1,3 @@
-//
-// Created by dors on 11/23/20.
-//
-
 #ifndef LABCODE_INCLUDES_H
 #define LABCODE_INCLUDES_H
 #include <stdio.h>
