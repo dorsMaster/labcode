@@ -1,19 +1,41 @@
 #include "../headers/includes.h"
 
+/**
+ * Uses a template to assign width to table for when it prints
+ * @param t
+ * @param width
+ */
 template<typename T> void printElement(T t, const int& width) {
     cout << left << setw(width) << setfill(separator) << t;
 }
 
+/**
+ * Uses a template to assign width to table for when it prints specific to numbers
+ * @param t
+ * @param width
+ */
 template<typename T> void prinNumElement(T t, const int& width) {
     cout << right << setw(width) << setfill(separator) << t;
 }
 
+/**
+ * Uses a template to assign width to table for when it prints specific to time element.
+ * it also set the precision of the number to be 2 decimal places
+ * @param t
+ * @param width
+ */
 template<typename T> void printTimeElement(T t, const int& width) {
     cout << fixed <<setprecision(2) << left << setw(width) << setfill(separator)
          << t
          << ": ";
 }
 
+/**
+ * Uses a template to assign width to table for when it prints and then prints one row
+ * @param status
+ * @param job
+ * @param id
+ */
 void printRow(string status, char job, int id){
     const auto startTask = std::chrono::system_clock::now();
     double tm = std::chrono::duration_cast<std::chrono::milliseconds>(startTask.time_since_epoch()).count()/1000.0;
@@ -25,6 +47,10 @@ void printRow(string status, char job, int id){
     cout << "\n";
 }
 
+/**
+ * Gets the hostname
+ * @return string
+ * */
 string getHostName(){
     char hostname[1024];
     string hostname_pid;
@@ -34,6 +60,13 @@ string getHostName(){
     return hostname_pid;
 }
 
+/**
+ * reads the port number and ip address of the client, it establishes a connection
+ * reads from a file, sends a task to the server, it sleeps if given the sleep command
+ * it receives from the server whether the task is done, if done, it closes the connection 
+ * @param argv
+ * @param argc
+ */
 int main(int argc, char *argv[]) {
     int numTransactions = 0;
 

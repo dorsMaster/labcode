@@ -83,6 +83,7 @@ void printRow(int i, char job, string id, string hostname){
  * To handle error and print error statements
  * @param n
  * @param err
+ * @return int
  */
 int guard(int n, string err) { if (n == -1) { perror(err.c_str()); exit(1); } return n; }
 
@@ -91,6 +92,7 @@ int guard(int n, string err) { if (n == -1) { perror(err.c_str()); exit(1); } re
  * it calls trans and also prints done when the task has been executed
  * @param count
  * @param client_fd
+ * @return int
  */
 int taskForClient(int count, int client_fd){
     char buffer[1024];
