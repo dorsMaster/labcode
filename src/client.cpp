@@ -1,23 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <iostream>
-#include <chrono>
-#include <iomanip>
-#include "../headers/tands.h"
-
-
-using namespace std;
-
-char        separator       = ' ';
-const int   timeWidth       =  12;
-const int   statusWidth     =   6;
-const int   numWidth        =   4;
-const int   singleWidth     =   1;
+#include "../headers/includes.h"
 
 template<typename T> void printElement(T t, const int& width) {
     cout << left << setw(width) << setfill(separator) << t;
@@ -29,8 +10,8 @@ template<typename T> void prinNumElement(T t, const int& width) {
 
 template<typename T> void printTimeElement(T t, const int& width) {
     cout << fixed <<setprecision(2) << left << setw(width) << setfill(separator)
-    << t
-    << ": ";
+         << t
+         << ": ";
 }
 
 void printRow(string status, char job, int id){
@@ -39,7 +20,7 @@ void printRow(string status, char job, int id){
     printTimeElement(tm, timeWidth);    printElement(status, statusWidth);
     printElement("(", singleWidth);
     printElement(job, singleWidth);
-    prinNumElement(id, numWidth);
+    prinNumElement(id, indexWidth);
     printElement(")", singleWidth);
     cout << "\n";
 }
@@ -79,20 +60,20 @@ int main(int argc, char *argv[]) {
             cout << "Sleep " << tmp << " units" << endl;
         }
         else
-            {        //Send some data
-                int fd = socket(AF_INET, // an Internet socket
-                                SOCK_STREAM, // reliable stream-like socket
-                                0); // OS determine the protocol (TCP)
+        {        //Send some data
+            int fd = socket(AF_INET, // an Internet socket
+                            SOCK_STREAM, // reliable stream-like socket
+                            0); // OS determine the protocol (TCP)
 
-                if (fd < 0)
-                    return 1; // something went wrong
+            if (fd < 0)
+                return 1; // something went wrong
 
-                struct sockaddr_in serv_addr;
+            struct sockaddr_in serv_addr;
 
-                // setup server address
-                serv_addr.sin_family = AF_INET;
-                serv_addr.sin_addr.s_addr = inet_addr(ipAdd);
-                serv_addr.sin_port = htons(portNum); // port
+            // setup server address
+            serv_addr.sin_family = AF_INET;
+            serv_addr.sin_addr.s_addr = inet_addr(ipAdd);
+            serv_addr.sin_port = htons(portNum); // port
             if (connect(fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) // bind socket to the server address
                 return 1;
 

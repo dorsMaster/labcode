@@ -1,33 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <chrono>
-#include <iostream>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <iomanip>
-#include <unordered_map>
-#include "../headers/tands.h"
-
-using namespace std;
+#include "../headers/includes.h"
 
 time_t      endwait, start;
 double      startOfProgram, endOfProgram;
 bool        startOfProgramFlag  = true;
 unordered_map<string,int>      summary;
-
-int         i                   =   1;
-time_t      seconds             =  30;
-char        separator           = ' ';
-const int   timeWidth           =  12;
-const int   statusWidth         =   6;
-const int   tpsWidth            =   5;
-const int   indexWidth          =   4;
-const int   numWidth            =   3;
-const int   singleWidth         =   1;
 
 template<typename T> void printElement(T t, const int& width) {
     cout << left << setw(width) << setfill(separator) << t;
