@@ -63,7 +63,7 @@ string getHostName(){
 /**
  * reads the port number and ip address of the client, it establishes a connection
  * reads from a file, sends a task to the server, it sleeps if given the sleep command
- * it receives from the server whether the task is done, if done, it closes the connection 
+ * it receives from the server whether the task is done, if done, it closes the connection
  * @param argv
  * @param argc
  */
