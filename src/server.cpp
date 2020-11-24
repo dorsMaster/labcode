@@ -72,7 +72,7 @@ void printRow(int i, char job, string id, string hostname){
     cout << hostname << "\n";
 }
 
-int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; }
+int guard(int n, string err) { if (n == -1) { perror(err.c_str()); exit(1); } return n; }
 
 void taskForClient(int count, int client_fd){
     char buffer[1024];
@@ -115,7 +115,12 @@ void tryForConnection(int fd){
     do {
         taskForClient(count, client_fd);
         string client_response = "D" + to_string(i);
-        write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
+        int rc = write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
+        if (rc < 0)
+        {
+            perror("write() failed");
+            exit(-1);
+        }
     } while(count > 0);
 
     close(client_fd);
@@ -161,7 +166,7 @@ int main(int argc, char *argv[]) {
         return 1;
 
     printf("Using port %d \n", portNum);
-    if (listen(fd, 1) < 0) // wait for clients, only 1 is allowed.
+    if (listen(fd, SOMAXCONN) < 0) // wait for clients, only 1 is allowed.
         return 1;
 
     start = time(NULL);
