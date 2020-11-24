@@ -1,0 +1,39 @@
+.\"Modified from man(1) of FreeBSD, the NetBSD mdoc.template, and mdoc.samples.
+.\"See Also:
+.\"man mdoc.samples for a complete listing of options
+.\"man mdoc for the short list of editing options
+.\"/usr/share/misc/mdoc.template
+.Dd 8/4/10               \" DATE
+.Dt client      \" Program name and manual section number
+.Os Ubuntu
+.Sh NAME                 \" Section Header - required - don't modify
+.Nm Client,
+.Nm service requesters
+.Sh SYNOPSIS             \" Section Header - required - don't modify
+.Nm client               \" [file ...]
+.Ar port_number
+.Ar ip_address
+.Sh DESCRIPTION         \" Section Header - required - don't modify
+A server host runs one or more server programs, which share
+their resources with clients. Clients therefore initiate communication
+sessions with servers, which await incoming requests. Examples of computer
+applications that use the client–server model are Email, network printing, and
+the World Wide Web.
+.Lp
+Clients generate transactions (T<n>) that get sent to the server to execute. Clients may have lulls between
+transactions, so they wait (S<n>) for a transaction to happen. The server receives the
+transactions, processes them, and then waits for the next transaction.
+.Lp
+Port number that the server will read from has to be in the range 5000 to 64,000, the same number that the server uses.
+.Lp
+More specifically, a client process receives input (either from the keyboard or redirected from a file) containing two commands:
+.Lp
+.IP T<n>
+Transaction. The parameter is an integer > 0. This command will be sent to the server for processing. The client sits idle waiting for the server to complete the transaction
+.Lp
+.IP S<n>
+Sleep. This command simulates having the client wait between receiving new transactions to process. The client waits for a time determined by integer parameter n, with n between 0 and 100. You will have a routine that gets called for each sleep request: void Sleep(int n).
+.Sh SEE ALSO
+.\" List links in ascending order by section, alphabetically within a section.
+.\" Please do not reference files that do not exist without filing a bug report
+.Xr server

@@ -74,7 +74,7 @@ void printRow(int i, char job, string id, string hostname){
 
 int guard(int n, string err) { if (n == -1) { perror(err.c_str()); exit(1); } return n; }
 
-void taskForClient(int count, int client_fd){
+int taskForClient(int count, int client_fd){
     char buffer[1024];
     start = time(NULL);
     count = read(client_fd, buffer, sizeof(buffer));
@@ -100,6 +100,7 @@ void taskForClient(int count, int client_fd){
         }
         endwait = start + seconds;
     }
+    return count;
 }
 
 void tryForConnection(int fd){
@@ -108,18 +109,15 @@ void tryForConnection(int fd){
     int len = sizeof(client_address);
     int client_fd = accept(fd, (struct sockaddr*) &client_address, reinterpret_cast<socklen_t *>(&len));  // accept connection
 
-//    if (client_fd < 0) // bad connection
-
     int count = 0;
 
     do {
-        taskForClient(count, client_fd);
+        count = taskForClient(count, client_fd);
         string client_response = "D" + to_string(i);
-        int rc = write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
-        if (rc < 0)
+        ssize_t written = write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
+        if (written < 0 && count > 0)
         {
             perror("write() failed");
-            exit(-1);
         }
     } while(count > 0);
 
