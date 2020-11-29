@@ -1,5 +1,7 @@
 #include "../headers/includes.h"
 
+//The base code is taken from the code provided in the lab
+
 /**
  * Uses a template to assign width to table for when it prints
  * @param t

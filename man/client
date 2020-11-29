@@ -9,31 +9,21 @@
 .Sh NAME                 \" Section Header - required - don't modify
 .Nm Client,
 .Nm service requesters
-.Sh SYNOPSIS             \" Section Header - required - don't modify
-.Nm client               \" [file ...]
+.Sh SYNOPSIS
+.Nm client
 .Ar port_number
 .Ar ip_address
-.Sh DESCRIPTION         \" Section Header - required - don't modify
-A server host runs one or more server programs, which share
-their resources with clients. Clients therefore initiate communication
-sessions with servers, which await incoming requests. Examples of computer
-applications that use the client–server model are Email, network printing, and
-the World Wide Web.
+.Sh DESCRIPTION
+Clients start sessions of communication with servers. A server shares their resources with clients and waits for requests from Client. Email is an application that uses the client-server model.
 .Lp
-Clients generate transactions (T<n>) that get sent to the server to execute. Clients may have lulls between
-transactions, so they wait (S<n>) for a transaction to happen. The server receives the
-transactions, processes them, and then waits for the next transaction.
+Client checks to see whether the port number that the user is asked for is in the range 5000 to 64000. This is as a result of the server only listening on those ports. The port provided to the client should match the port number that the server will listen.
 .Lp
-Port number that the server will read from has to be in the range 5000 to 64,000, the same number that the server uses.
-.Lp
-More specifically, a client process receives input (either from the keyboard or redirected from a file) containing two commands:
+Client process can receive two possible commands. These commands can either be from the keyboard or from an input file.
 .Lp
 .IP T<n>
-Transaction. The parameter is an integer > 0. This command will be sent to the server for processing. The client sits idle waiting for the server to complete the transaction
+T means transaction and the n can be an integer greater than 0. If client reads this command, it will send this along with its hostname to the server to be process. Client will wait for the server to respond that this transaction has successfully been completed.
 .Lp
 .IP S<n>
-Sleep. This command simulates having the client wait between receiving new transactions to process. The client waits for a time determined by integer parameter n, with n between 0 and 100. You will have a routine that gets called for each sleep request: void Sleep(int n).
+S means sleep and the n can be an integer between greater than 0 and less than 100. This command is done by the client. This is to simulate that the client has to wait before receiving new commands. Void(sleep int n) is called when the client receives this command.
 .Sh SEE ALSO
-.\" List links in ascending order by section, alphabetically within a section.
-.\" Please do not reference files that do not exist without filing a bug report
 .Xr server

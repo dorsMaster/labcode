@@ -1,5 +1,8 @@
 #include "../headers/includes.h"
 
+
+//The base code is taken from the code provided in the lab
+
 time_t      endwait, start;
 double      startOfProgram, endOfProgram;
 bool        startOfProgramFlag  = true;
