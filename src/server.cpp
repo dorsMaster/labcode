@@ -140,7 +140,7 @@ void tryForConnection(int fd){
 
     do {
         count = taskForClient(count, client_fd);
-        string client_response = "D" + to_string(i);
+        string client_response = "D" + to_string(i-1);
         ssize_t written = write(client_fd, client_response.c_str(), (ssize_t)strlen(client_response.c_str()));
         if (written < 0 && count > 0)
         {
